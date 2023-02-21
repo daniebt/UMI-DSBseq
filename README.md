@@ -25,7 +25,7 @@ Reads are grouped by UMI using FGBIOs GroupReadsByUmi (strategy=adjacency, edits
 ### 1. demultiplex raw run  
 bcl2fastq --input-dir /BaseCalls/ \
     --runfolder-dir run_folder/ \
-    --output-dir /home/labs/alevy/Collaboration/Novaseq_May16_2021/demultiplex_data/ \
+    --output-dir /demultiplex_data/ \
     --sample-sheet /path_to_sample/Sample_Sheet.csv \
     --barcode-mismatches 0 \
     --use-bases-mask Y151,I8Y9,I8,Y151 \
@@ -81,7 +81,7 @@ bcl2fastq --input-dir /BaseCalls/ \
              'Guide sequence': sgRNA 20bp sequence (no PAM)
              'Amplicon sequence': expected sequence of wt intact molecule (primer--> restriction site:
              'forward_primer': sequene of target-specific amplification primer
-             'restricted_end': expected 5 bp end of amplicon at end-repaired restrictioin site 
+             'restricted_end': expected 5 bp end of amplicon at end-repaired restriction site 
 #### EXAMPLE
      target_name = 'Psy1'
      restricted_end = 'GTCCG'#enter 5bp end of amplicon at the restriction site
