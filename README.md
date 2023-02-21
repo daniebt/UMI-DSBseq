@@ -71,6 +71,7 @@ bcl2fastq --input-dir /BaseCalls/ \
     /ea-utils/1.1.2/bin/fastq-join -o fastq_join/${sample}.%.fastq merged_bam_UMI_group_2readconsensus_fastq1 merged_bam_UMI_group_2readconsensus_fastq2
     
 # UMI-DSBseq Consensus Sequence Analysis WorkFlow
+Provided in the Jupyter notebook: UMI-DSBseq_analysis
 ## 1.User Input
     name of target (target_name) - for naming output
     directory containing joined-fastqs and Sample_data.xlxs (my_dir), 
