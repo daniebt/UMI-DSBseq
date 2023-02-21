@@ -112,14 +112,14 @@ Provided in the Jupyter notebook: UMI-DSBseq_analysis
     Identifies any microhomology around the deletions, 
     groups and counts the sequences by all parameters.
         *changing window sizes requires adjusting the expected window length
-        ### Functions
+
 #### Mut_col functions 
     1. Mut_col_reverse_guide_only: in the case that the primer is oriented correctly, but the sgRNA is in reverse
     2. Mut_col_reverse: in the case that both the primer and sgRNA are in reverse
     3. Mut_col_Forward: in the case that the primer and sgRNA are oriented correctly
 
 ## 7. Group reads and count 
-     retains columns sequence, length, sate, type, mut name, DSB
+     retains columns sequence, length, state, type, mut name, DSB
 ## 8. Identify microhomology associated deletions
     cut-off can be manually adjusted, default is 2 bp minimum microhomology
 ## 9. Output all_grouped_reads.csv of fully characterized grouped, counted reads for each sample 
