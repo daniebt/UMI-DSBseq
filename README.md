@@ -33,9 +33,6 @@ bcl2fastq --input-dir /BaseCalls/ \
     --ignore-missing-bcl \
     --no-lane-splitting \
     --mask-short-adapter-reads 0
-    Fastqs are aligned to a reference of the target sequence using bwa-mem 
-    bwa mem -t 8 reference fastq_R1 fastq_R2 > mapped_bam
-    
    
 ### 2. Mapped Bam: Align demultiplexed Fastq paired end files to to reference made from Intact amplicon sequence for each target seperately 
 ## bwa mem: bwa/0.7.13
