@@ -1,3 +1,75 @@
+# Generating Consensus Sequences
+requires:
+bcl2fastq, picard/2.8.3, jdk/8.111, bwa/0.7.13, fgbio/1.1.0
+
+Design of the UMI-DSBseq adaptors was adapted from on the P7 tail of the xGen UDIUMI
+adaptors from IDT (https://eu.idtdna.com/pages/products/next-generationsequencing/
+adapters/xgen-udi-umi-adapters), containing an 8bp index for barcoding
+from the IDT8_i7 index list, and a 9bp unique molecular identifier, for analysis with the
+recommended pipeline for single molecule sequencing.
+
+UMI-DSBseq libraries are sequenced using 150bp paired-end.
+The run settings: 17 bp index 1 and 8 bp index 2, with 149-151 bp for each read 1 and read 2. Depending on the kit. Example here seen with 151 bp reads.
+
+We recommend a minimum of between 2-5 million reads per sample: 
+
+Demultiplexing is done using bcl2fasq, splitting the index 1 read into the UMI file and index file. Data processing pipeline was adapted from the IDT pipeline (https://www.youtube.com/watch?v=68sca_jsqg8&ab_channel=IntegratedDNATechnologies).
+for building consensus sequences using FGBIO (https://github.com/fulcrumgenomics/fgbio). 
+
+Fastqs are aligned to a reference of the target sequence using bwa-mem
+Unmapped BAM files are generated using picard FastqToSam. 
+The unmapped and mapped BAM files are merged using picard MergeBamAlignment (MAX_GAPS=-1, CLIP_ADAPTORS=true)
+and annotated with UMIs using FGBIO.
+Reads are grouped by UMI using FGBIOs GroupReadsByUmi (strategy=adjacency, edits=1, min-map-q=0,assign-tag=MI). Finally,Consensus sequences are generated using FGBIO CallMolecularConsensusReads with min-reads=2 and minimum input base quality set to 20. Final BAM files with consensusreads are converted to Fastqs using SamToFastq from picard, and joined using ea-utils fastq-join.
+
+### 1. demultiplex raw run  
+bcl2fastq --input-dir /BaseCalls/ \
+    --runfolder-dir run_folder/ \
+    --output-dir /home/labs/alevy/Collaboration/Novaseq_May16_2021/demultiplex_data/ \
+    --sample-sheet /path_to_sample/Sample_Sheet.csv \
+    --barcode-mismatches 0 \
+    --use-bases-mask Y151,I8Y9,I8,Y151 \
+    --create-fastq-for-index-reads \
+    --ignore-missing-bcl \
+    --no-lane-splitting \
+    --mask-short-adapter-reads 0
+    Fastqs are aligned to a reference of the target sequence using bwa-mem 
+    bwa mem -t 8 reference fastq_R1 fastq_R2 > mapped_bam
+    
+   
+### 2. Mapped Bam: Align demultiplexed Fastq paired end files to to reference made from Intact amplicon sequence for each target seperately 
+## bwa mem: bwa/0.7.13
+    bwa mem -t 8 reference fastq_R1 fastq_R3 > mapped_bam
+
+### 3. Umapped Bam: create unmapped bam from fastq files 
+    java -Xmx4g -jar /picard/2.8.3/picard.jar FastqToSam F1=fastq_R1 F2=fastq_R3 O=unmapped_bam SM=sample_name
+### 4. Merged Bam: Merge mapped and unmapped Bam files 
+    java -Xmx4g -jar /picard/2.8.3/picard.jar MergeBamAlignment ALIGNED=mapped_bam UNMAPPED=unmapped_bam OUTPUT=output REFERENCE_SEQUENCE=reference MAX_GAPS=-1 SORT_ORDER=coordinate CREATE_INDEX=true CLIP_ADAPTERS=true
+### 5. Annotate Bam: Annotate Bam with UMI's from UMI read (R3) File
+    java -Xmx10g -jar FGBIO_JAR_FILE AnnotateBamWithUmis -i merged_bam -f umi_file -o merged_bam_UMI
+### 6. Group reads by UMI: Agroup reads by UMI without filtering
+    java -Xmx20g -jar FGBIO_JAR_FILE GroupReadsByUmi \
+        --input=merged_bam_UMI \
+        --output=merged_bam_UMI_group \
+        --family-size-histogram=sample_name_hist \
+        --strategy=adjacency --edits=1 --min-map-q=0 \
+        --assign-tag=MI
+### 7. Make Concensus sequences based on min base quality=20 and minumum reads=2
+    java -Xmx20g -jar FGBIO_JAR_FILE CallMolecularConsensusReads \
+        --input=merged_bam_UMI_group \
+        --output=merged_bam_UMI_group_2readconsensus \
+        --min-reads=2 \
+        --rejects=merged_bam_UMI_group_2readconsensus_rejects \
+        --min-input-base-quality=20 \
+        --read-group-id=[ENTER sample_name]
+### 8. Convert consensus Bam to Fastq
+    java -Xmx4g -jar /apps/RH7U2/general/picard/2.8.3/picard.jar SamToFastq \
+        INPUT=merged_bam_UMI_group_2readconsensus \
+        FASTQ=merged_bam_UMI_group_2readconsensus_fastq1 \
+        SECOND_END_FASTQ=merged_bam_UMI_group_2readconsensus_fastq2
+### 9. join fastqs for further analysis
+    /ea-utils/1.1.2/bin/fastq-join -o fastq_join/${sample}.%.fastq merged_bam_UMI_group_2readconsensus_fastq1 merged_bam_UMI_group_2readconsensus_fastq2
+    
 # UMI-DSBseq Consensus Sequence Analysis WorkFlow
 ## 1.User Input
     name of target (target_name) - for naming output
