@@ -23,16 +23,16 @@ and annotated with UMIs using FGBIO.
 Reads are grouped by UMI using FGBIOs GroupReadsByUmi (strategy=adjacency, edits=1, min-map-q=0,assign-tag=MI). Finally,Consensus sequences are generated using FGBIO CallMolecularConsensusReads with min-reads=2 and minimum input base quality set to 20. Final BAM files with consensusreads are converted to Fastqs using SamToFastq from picard, and joined using ea-utils fastq-join.
 
 ### 1. demultiplex raw run  
-bcl2fastq --input-dir /BaseCalls/ \
-    --runfolder-dir run_folder/ \
-    --output-dir /demultiplex_data/ \
-    --sample-sheet /path_to_sample/Sample_Sheet.csv \
-    --barcode-mismatches 0 \
-    --use-bases-mask Y151,I8Y9,I8,Y151 \
-    --create-fastq-for-index-reads \
-    --ignore-missing-bcl \
-    --no-lane-splitting \
-    --mask-short-adapter-reads 0
+    bcl2fastq --input-dir /BaseCalls/ \
+        --runfolder-dir run_folder/ \
+        --output-dir /demultiplex_data/ \
+        --sample-sheet /path_to_sample/Sample_Sheet.csv \
+        --barcode-mismatches 0 \
+        --use-bases-mask Y151,I8Y9,I8,Y151 \
+        --create-fastq-for-index-reads \
+        --ignore-missing-bcl \
+        --no-lane-splitting \
+        --mask-short-adapter-reads 0
    
 ### 2. Mapped Bam: Align demultiplexed Fastq paired end files to to reference made from Intact amplicon sequence for each target seperately with bwa mem: version used- bwa/0.7.13
     bwa mem -t 8 reference fastq_R1 fastq_R3 > mapped_bam
