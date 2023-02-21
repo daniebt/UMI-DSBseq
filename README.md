@@ -34,8 +34,7 @@ bcl2fastq --input-dir /BaseCalls/ \
     --no-lane-splitting \
     --mask-short-adapter-reads 0
    
-### 2. Mapped Bam: Align demultiplexed Fastq paired end files to to reference made from Intact amplicon sequence for each target seperately 
-## bwa mem: bwa/0.7.13
+### 2. Mapped Bam: Align demultiplexed Fastq paired end files to to reference made from Intact amplicon sequence for each target seperately with bwa mem: version used- bwa/0.7.13
     bwa mem -t 8 reference fastq_R1 fastq_R3 > mapped_bam
 
 ### 3. Umapped Bam: create unmapped bam from fastq files 
