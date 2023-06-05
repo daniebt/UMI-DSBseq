@@ -21,6 +21,11 @@ Unmapped BAM files are generated using picard FastqToSam.
 The unmapped and mapped BAM files are merged using picard MergeBamAlignment (MAX_GAPS=-1, CLIP_ADAPTORS=true)
 and annotated with UMIs using FGBIO.
 Reads are grouped by UMI using FGBIOs GroupReadsByUmi (strategy=adjacency, edits=1, min-map-q=0,assign-tag=MI). Finally,Consensus sequences are generated using FGBIO CallMolecularConsensusReads with min-reads=2 and minimum input base quality set to 20. Final BAM files with consensusreads are converted to Fastqs using SamToFastq from picard, and joined using ea-utils fastq-join.
+### Prepare Reference: prepare Fasta reference file for each target, create index and dictionary
+    bwa index reference.fasta
+    java -jar picard.jar CreateSequenceDictionary \      
+        R=reference.fasta \
+        O=reference.dict \
 
 ### 1. demultiplex raw run  
     bcl2fastq --input-dir /BaseCalls/ \
